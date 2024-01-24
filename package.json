@@ -7,9 +7,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint:html": "npx eslint ./src/**/*.html",
     "lint:html:dog": "npx eslint ./src/**/*.html --format",
-    "lint:js": "npx eslint ./src/**/*.js",
-    "lint:css": "npx stylelint ./src/**/*.css",
-    "lint:fix": "npx eslint ./src/**/*.{html,js} --fix && npx stylelint ./src/**/*.css --fix && npx prettier ./src/** --write"
+    "lint:js": "npx eslint './src/**/*.js'",
+    "lint:css": "npx stylelint './src/**/*.css'",
+    "lint:fix": "npx eslint './src/**/*.{html,js}' --fix && npx stylelint './src/**/*.css' --fix && npx prettier './src/**' --write"
   },
   "keywords": [],
   "author": "",
