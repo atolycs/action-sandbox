@@ -12,7 +12,10 @@
         {
             "files": ["*.html"],
             "parser": "@html-eslint/parser",
-            "extends": [ "plugin:@html-eslint/recommended", "prettier" ]
+            "extends": [ "plugin:@html-eslint/recommended" ],
+            "rules": {
+                "@html-eslint/require-meta-charset": "error"
+            }
         }
     ]
 }

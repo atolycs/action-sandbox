@@ -2,5 +2,13 @@
     "semi": true,
     "arrowParens": "always",
     "singleQuote": false,
-    "trailingComma": "none"
+    "trailingComma": "none",
+    "overrides": [
+        {
+          "files": ["*.html"],
+          "options": {
+            "tabWidth": 4
+          }
+        }
+    ]
 }
