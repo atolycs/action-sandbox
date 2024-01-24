@@ -122,7 +122,12 @@ jobs:
           env:
             GH_TOKEN: ${{ steps.create_token.outputs.token }}
             PR_NUMBER: ${{ github.event.number }}
+            WEBHOOK_URL: ${{ secrets.DISCORD_GITHUB_GIRLS }}
           run: | 
            gh pr review --repo ${GITHUB_REPOSITORY} $PR_NUMBER --approve 
            gh pr review --repo ${GITHUB_REPOSITORY} $PR_NUMBER --comment --body 'Approved! meow'
-           
+           curl -H "Content-Type: application/json" \
+            -X POST \
+            -d '{
+              "content": "マージリクエスト承認!\n ${{ github.event.pull_request.html_url }}"
+            }' "${WEBHOOK_URL}"
