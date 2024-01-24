@@ -26,10 +26,12 @@ jobs:
            uses: actions/cache@v4
            id: node_modules_cache_id
            env:
-            cache-name: '**/node_modeules'
+            cache-name: 'node_modeules'
            with:
             path: '**/node_modules'
             key: ${{ runner.os }}-lint-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+            restore-keys: |
+                ${{ runner.os }}-lint
         
          - name: Checking node_modules cache
            run: echo '${{ toJSON(steps.node_modules_cache_id.outputs) }}'
@@ -45,21 +47,53 @@ jobs:
     linterhtml:
           name: HTML Linter
           runs-on: ubuntu-latest
+          permissions:
+            pull-requests: write
           needs: reviewdog
           steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v4
+
+            - name: cache restore
+              uses: actions/cache@v4
+              with:
+                path: '**/node_modules'
+                key: ${{ runner.os }}-lint-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+                restore-keys: |
+                    ${{ runner.os }}-lint
+
             - name: Run html eslint with reviewdog
               uses: reviewdog/action-eslint@v1
+              env:
+                REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               with:
-                reporter: github-check
+                reporter: github-pr-review
+                fail_on_error: true
                 eslint_flags: "./src/**/*.html"
 
     lintercss:
           name: CSS Linter
           runs-on: ubuntu-latest
+          permissions:
+            pull-requests: write
           needs: reviewdog
-          steps:           
+          steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v4
+
+            - name: cache restore
+              uses: actions/cache@v4
+              with:
+                path: '**/node_modules'
+                key: ${{ runner.os }}-lint-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+                restore-keys: |
+                    ${{ runner.os }}-lint
+
             - name: Run stylelint with reviewdog
               uses: reviewdog/action-stylelint@v1
+              env:
+                REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               with:
                 reporter: github-pr-review
-                eslint_flags: "./src/**/*.css"
+                fail_on_error: true
+                stylelint_input: "./src/**/*.css"
