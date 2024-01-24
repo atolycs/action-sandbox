@@ -1,0 +1,36 @@
+{
+    "plugins": [ "@html-eslint"],
+    "extends": [
+        "eslint:recommended",
+        "prettier"
+    ],
+    "env": {
+        "browser": true,
+        "es2021": true
+    },
+    "overrides": [
+        {
+            "files": ["*.html"],
+            "parser": "@html-eslint/parser",
+            "extends": [ "plugin:@html-eslint/recommended" ],
+            "rules": {
+                "@html-eslint/require-meta-charset": "error",
+                "@html-eslint/require-closing-tags": 
+                    ["error", 
+                        { 
+                            "allowSelfClosingCustom": true, 
+                            "selfClosing": "always"
+                        }
+                    ],
+                "@html-eslint/no-extra-spacing-attrs": 
+                    [
+                        "error",
+                        { 
+                            "enforceBeforeSelfClose": true,
+                            "disallowMissing": true
+                        }
+                    ]
+            }
+        }
+    ]
+}

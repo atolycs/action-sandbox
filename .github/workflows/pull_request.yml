@@ -8,12 +8,13 @@ on:
 
 jobs:
     reviewdog:
+        name: Setup ReviewDog
         runs-on: ubuntu-latest
 
         steps:
          - name: Checkout Repository
            uses: actions/checkout@v4
-           
+
          - name: Setup ReviewDog
            uses: reviewdog/action-setup@v1
            with:
@@ -25,10 +26,12 @@ jobs:
            uses: actions/cache@v4
            id: node_modules_cache_id
            env:
-            cache-name: '**/node_modeules'
+            cache-name: 'node_modeules'
            with:
             path: '**/node_modules'
             key: ${{ runner.os }}-lint-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+            restore-keys: |
+                ${{ runner.os }}-lint
         
          - name: Checking node_modules cache
            run: echo '${{ toJSON(steps.node_modules_cache_id.outputs) }}'
@@ -41,5 +44,85 @@ jobs:
          - name: Installed eslint check
            run: npm ls --depth=1
 
+    linterhtml:
+          name: HTML Linter
+          runs-on: ubuntu-latest
+          needs: [ reviewdog ]
+          steps:
+            - name: Generate Token
+              id: create_token
+              uses: actions/create-github-app-token@v1
+              with:
+                app-id: ${{ secrets.APP_ID }}
+                private-key: ${{ secrets.APP_PEM }}
+ 
+            - name: Checkout Repository
+              uses: actions/checkout@v4
 
-        
+            - name: cache restore
+              uses: actions/cache@v4
+              with:
+                path: '**/node_modules'
+                key: ${{ runner.os }}-lint-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+                restore-keys: |
+                    ${{ runner.os }}-lint
+
+            - name: Run html eslint with reviewdog
+              uses: reviewdog/action-eslint@v1
+              with:
+                github_token: ${{ steps.create_token.outputs.token }}
+                reporter: github-pr-review
+                fail_on_error: true
+                eslint_flags: "./src/**/*.html"
+
+    lintercss:
+        name: CSS Linter
+        runs-on: ubuntu-latest
+        needs: [ reviewdog ]
+        steps:
+          - name: Generate Token
+            id: create_token
+            uses: actions/create-github-app-token@v1
+            with:
+              app-id: ${{ secrets.APP_ID }}
+              private-key: ${{ secrets.APP_PEM }}
+
+          - name: Checkout Repository
+            uses: actions/checkout@v4
+
+          - name: cache restore
+            uses: actions/cache@v4
+            with:
+                path: '**/node_modules'
+                key: ${{ runner.os }}-lint-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+                restore-keys: |
+                    ${{ runner.os }}-lint
+
+          - name: Run stylelint with reviewdog
+            uses: reviewdog/action-stylelint@v1
+            with:
+              github_token: ${{ steps.create_token.outputs.token }}
+              reporter: github-pr-review
+              fail_on_error: true
+              stylelint_input: "./src/**/*.css"
+    
+    review_result:
+      name: Review Result
+      runs-on: ubuntu-latest
+      needs: [linterhtml, lintercss]
+      steps:
+        - name: Generate Token
+          id: create_token
+          uses: actions/create-github-app-token@v1
+          with:
+            app-id: ${{ secrets.APP_ID }}
+            private-key: ${{ secrets.APP_PEM }}
+
+        - name: Completed Message
+          env:
+            GH_TOKEN: ${{ steps.create_token.outputs.token }}
+            PR_NUMBER: ${{ github.event.number }}
+          run: | 
+           gh pr review --repo ${GITHUB_REPOSITORY} $PR_NUMBER --approve 
+           gh pr review --repo ${GITHUB_REPOSITORY} $PR_NUMBER --comment --body 'Approved! meow'
+           
