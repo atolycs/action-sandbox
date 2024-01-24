@@ -7,6 +7,17 @@ on:
                 - to_merge
 
 jobs:
+    get-token:
+        name: Github App ID
+        runs-on: ubuntu-latest
+        steps:
+         - name: Generate Token
+           id: create_token
+           uses: actions/github-app-token@v2
+           with:
+             app-id: ${{ secrets.APP_ID }}
+             private-key: ${{ secrets.APP_PEM }}
+
     reviewdog:
         name: Setup ReviewDog
         runs-on: ubuntu-latest
@@ -47,10 +58,15 @@ jobs:
     linterhtml:
           name: HTML Linter
           runs-on: ubuntu-latest
-          permissions:
-            pull-requests: write
-          needs: reviewdog
+          needs: [ reviewdog ]
           steps:
+            - name: Generate Token
+              id: create_token
+              uses: actions/create-github-app-token@v1
+              with:
+                app-id: ${{ secrets.APP_ID }}
+                private-key: ${{ secrets.APP_PEM }}
+ 
             - name: Checkout Repository
               uses: actions/checkout@v4
 
@@ -65,35 +81,40 @@ jobs:
             - name: Run html eslint with reviewdog
               uses: reviewdog/action-eslint@v1
               env:
-                REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                REVIEWDOG_GITHUB_API_TOKEN: ${{ steps.create_token.outputs.token }}
               with:
                 reporter: github-pr-review
                 fail_on_error: true
                 eslint_flags: "./src/**/*.html"
 
     lintercss:
-          name: CSS Linter
-          runs-on: ubuntu-latest
-          permissions:
-            pull-requests: write
-          needs: reviewdog
-          steps:
-            - name: Checkout Repository
-              uses: actions/checkout@v4
+        name: CSS Linter
+        runs-on: ubuntu-latest
+        needs: [ reviewdog ]
+        steps:
+          - name: Generate Token
+            id: create_token
+            uses: actions/create-github-app-token@v1
+            with:
+              app-id: ${{ secrets.APP_ID }}
+              private-key: ${{ secrets.APP_PEM }}
 
-            - name: cache restore
-              uses: actions/cache@v4
-              with:
+          - name: Checkout Repository
+            uses: actions/checkout@v4
+
+          - name: cache restore
+            uses: actions/cache@v4
+            with:
                 path: '**/node_modules'
                 key: ${{ runner.os }}-lint-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
                 restore-keys: |
                     ${{ runner.os }}-lint
 
-            - name: Run stylelint with reviewdog
-              uses: reviewdog/action-stylelint@v1
-              env:
-                REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              with:
-                reporter: github-pr-review
-                fail_on_error: true
-                stylelint_input: "./src/**/*.css"
+          - name: Run stylelint with reviewdog
+            uses: reviewdog/action-stylelint@v1
+            env:
+              REVIEWDOG_GITHUB_API_TOKEN: ${{ steps.create_token.outputs.token }}
+            with:
+              reporter: github-pr-review
+              fail_on_error: true
+              stylelint_input: "./src/**/*.css"
