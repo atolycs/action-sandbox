@@ -7,17 +7,6 @@ on:
                 - to_merge
 
 jobs:
-    get-token:
-        name: Github App ID
-        runs-on: ubuntu-latest
-        steps:
-         - name: Generate Token
-           id: create_token
-           uses: actions/github-app-token@v2
-           with:
-             app-id: ${{ secrets.APP_ID }}
-             private-key: ${{ secrets.APP_PEM }}
-
     reviewdog:
         name: Setup ReviewDog
         runs-on: ubuntu-latest
@@ -80,9 +69,8 @@ jobs:
 
             - name: Run html eslint with reviewdog
               uses: reviewdog/action-eslint@v1
-              env:
-                REVIEWDOG_GITHUB_API_TOKEN: ${{ steps.create_token.outputs.token }}
               with:
+                github_token: ${{ steps.create_token.outputs.token }}
                 reporter: github-pr-review
                 fail_on_error: true
                 eslint_flags: "./src/**/*.html"
@@ -112,9 +100,8 @@ jobs:
 
           - name: Run stylelint with reviewdog
             uses: reviewdog/action-stylelint@v1
-            env:
-              REVIEWDOG_GITHUB_API_TOKEN: ${{ steps.create_token.outputs.token }}
             with:
+              github_token: ${{ steps.create_token.outputs.token }}
               reporter: github-pr-review
               fail_on_error: true
               stylelint_input: "./src/**/*.css"
