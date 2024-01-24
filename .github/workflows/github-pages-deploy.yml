@@ -22,7 +22,7 @@ jobs:
         steps:
           - name: Discord Bot Webhook
             env:
-              DISCORD_WEBHOOK: ${{ secrets.DISCORD_KOMANIYA_URL }}
+              WEBHOOK_URL: ${{ secrets.DISCORD_KOMANIYA_URL }}
             run: |
              curl -H "Content-Type: application/json" \
               -X POST \
