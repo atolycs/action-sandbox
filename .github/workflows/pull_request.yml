@@ -124,8 +124,10 @@ jobs:
             PR_NUMBER: ${{ github.event.number }}
             WEBHOOK_URL: ${{ secrets.DISCORD_GITHUB_GIRLS }}
           run: | 
-           gh pr review --repo ${GITHUB_REPOSITORY} $PR_NUMBER --approve 
-           gh pr review --repo ${GITHUB_REPOSITORY} $PR_NUMBER --comment --body 'Approved! meow'
+           if [[ ! -z "${PR_NUMBER}" ]];then
+            gh pr review --repo ${GITHUB_REPOSITORY} $PR_NUMBER --approve 
+            gh pr review --repo ${GITHUB_REPOSITORY} $PR_NUMBER --comment --body 'Approved! meow'
+           fi
            curl -H "Content-Type: application/json" \
             -X POST \
             -d '{
