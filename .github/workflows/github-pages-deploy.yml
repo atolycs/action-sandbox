@@ -13,8 +13,7 @@ concurrency:
     cancel-in-progress: true
 
 jobs:
-    deploy_page_artifacts:
-        
+    deploy_page_artifacts:    
         runs-on: ubuntu-latest
         if: github.event.pull_request.merged == true
         environment:
