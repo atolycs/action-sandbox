@@ -47,6 +47,8 @@ jobs:
     linterhtml:
           name: HTML Linter
           runs-on: ubuntu-latest
+          permissions:
+            pull-requests: write
           needs: reviewdog
           steps:
             - name: Checkout Repository
@@ -62,13 +64,17 @@ jobs:
 
             - name: Run html eslint with reviewdog
               uses: reviewdog/action-eslint@v1
+              env:
+                REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               with:
-                reporter: github-check
+                reporter: github-pr-review
                 eslint_flags: "./src/**/*.html"
 
     lintercss:
           name: CSS Linter
           runs-on: ubuntu-latest
+          permissions:
+            pull-requests: write
           needs: reviewdog
           steps:
             - name: Checkout Repository
@@ -84,6 +90,8 @@ jobs:
 
             - name: Run stylelint with reviewdog
               uses: reviewdog/action-stylelint@v1
+              env:
+                REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               with:
-                reporter: github-check
-                eslint_flags: "./src/**/*.css"
+                reporter: github-pr-review
+                stylelint_input: "./src/**/*.css"
