@@ -123,5 +123,6 @@ jobs:
             GH_TOKEN: ${{ steps.create_token.outputs.token }}
             PR_NUMBER: ${{ github.event.number }}
           run: | 
-           gh pr review --repo ${GITHUB_REPOSITORY} $PR_NUMBER --approve --comment 'Approved! meow'
+           gh pr review --repo ${GITHUB_REPOSITORY} $PR_NUMBER --approve 
+           gh pr review --repo ${GITHUB_REPOSITORY} $PR_NUMBER --comment 'Approved! meow'
            
