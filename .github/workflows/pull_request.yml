@@ -50,6 +50,12 @@ jobs:
             - name: Checkout Repository
               uses: actions/checkout@v4
 
+            - name: cache restore
+              uses: actions/cache@v4
+              with:
+                restore-keys: |
+                    ${{ runner.os }}-lint
+
             - name: Run html eslint with reviewdog
               uses: reviewdog/action-eslint@v1
               with:
@@ -63,7 +69,13 @@ jobs:
           steps:
             - name: Checkout Repository
               uses: actions/checkout@v4
-              
+
+            - name: cache restore
+              uses: actions/cache@v4
+              with:
+                restore-keys: |
+                    ${{ runner.os }}-lint
+
             - name: Run stylelint with reviewdog
               uses: reviewdog/action-stylelint@v1
               with:
