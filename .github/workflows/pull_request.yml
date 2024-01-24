@@ -105,3 +105,22 @@ jobs:
               reporter: github-pr-review
               fail_on_error: true
               stylelint_input: "./src/**/*.css"
+    
+    review_result:
+      name: Review Result
+      runs-on: ubuntu-latest
+      needs: [linterhtml, lintercss]
+      steps:
+        - name: Generate Token
+          id: create_token
+          uses: actions/create-github-app-token@v1
+          with:
+            app-id: ${{ secrets.APP_ID }}
+            private-key: ${{ secrets.APP_PEM }}
+
+        - name: Completed Message
+          env:
+            GH_TOKEN: ${{ steps.create_token.outputs.token }}
+            PR_NUMBER: ${{ github.event.number }}
+          run: | 
+           gh pr review $PR_NUMBER --approve --comment 'Approved! meow'
