@@ -1,0 +1,40 @@
+on:
+    workflow_dispatch:
+    pull_request:
+            branches:
+                - to_merge
+
+jobs:
+    reviewdog:
+        runs-on: ubuntu-latest
+
+        steps:
+         - name: Setup ReviewDog
+           uses: reviewdog/action-setup@v1
+           with:
+                reviewdog_version: latest
+         - name: Setup node
+           uses: actions/setup-node@v4
+        
+         - name: cache activate
+           uses: actions/cache@v4
+           id: node_modules_cache_id
+           env:
+            cache-name: '**/node_modeules'
+           with:
+            path: '**/node_modules'
+            key: ${{ runner.os }}-lint-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+        
+         - name: Checking node_modules cache
+           run: echo '${{ toJSON(steps.node_modules_cache_id.outputs) }}'
+        
+         - if: ${{ steps.node_modules_cache_id.outputs.cache-hit != 'true' }}
+           name: Install eslint and dependencies
+           run: |
+              npm ci
+        
+         - name: Installed eslint check
+           run: npm ls --depth=1
+
+
+        
