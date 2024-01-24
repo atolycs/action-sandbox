@@ -1,0 +1,18 @@
+{
+    "plugins": [ "@html-eslint"],
+    "extends": [
+        "eslint:recommended",
+        "prettier"
+    ],
+    "env": {
+        "browser": true,
+        "es2021": true
+    },
+    "overrides": [
+        {
+            "files": ["*.html"],
+            "parser": "@html-eslint/parser",
+            "extends": [ "plugin:@html-eslint/recommended" ]
+        }
+    ]
+}
