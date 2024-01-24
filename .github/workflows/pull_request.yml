@@ -1,3 +1,5 @@
+name: Check with ReviewDog
+
 on:
     workflow_dispatch:
     pull_request:
