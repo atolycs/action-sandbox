@@ -29,9 +29,9 @@ jobs:
           PR_REVIEW_NUMBER: ${{ github.event.pull_request.review_comment_url }}
           PR_NUMBER: ${{ github.event.number }}
         run: |
-          gh api repos/${GITHUB_REPOSITORY}/pulls/${{ github.event.number }}/reviews --jq '.[] | [.id,.state] | join("=")' | \
+          gh api repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/reviews --jq '.[] | [.id,.state] | join("=")' | \
            grep -Po '\d+(?=\=APPROVED)' | \
-            xargs -I 'review_id' gh api repos/${GITHUB_REPOSITORY}/pulls/${{ github.event.number }}/reviews/review_id/dismissals -f message="meow, I review dismissal.\nRe-Reviewing..."
+            xargs -I 'review_id' gh api repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/reviews/review_id/dismissals -f message="meow, I review dismissal.\nRe-Reviewing..."
 
   reviewdog:
       name: Setup ReviewDog
