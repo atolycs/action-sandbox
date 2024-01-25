@@ -44,6 +44,16 @@ jobs:
          - name: Installed eslint check
            run: npm ls --depth=1
 
+         - name: Review Start Message
+           env:
+             WEBHOOK_URL: ${{ secrets.DISCORD_GITHUB_GIRLS }}
+           run: | 
+            curl -H "Content-Type: application/json" \
+             -X POST \
+             -d '{
+               "content": "レビュー準備完了。\nコードレビュー中…\n${{ github.event.pull_request.html_url }}"
+             }' "${WEBHOOK_URL}"
+
     linterhtml:
           name: HTML Linter
           runs-on: ubuntu-latest
@@ -61,6 +71,8 @@ jobs:
 
             - name: cache restore
               uses: actions/cache@v4
+              env:
+                cache-name: 'node_modules'
               with:
                 path: '**/node_modules'
                 key: ${{ runner.os }}-lint-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
@@ -92,6 +104,8 @@ jobs:
 
           - name: cache restore
             uses: actions/cache@v4
+            env:
+              cache-name: 'node_modules'
             with:
                 path: '**/node_modules'
                 key: ${{ runner.os }}-lint-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}

@@ -68,6 +68,6 @@ jobs:
              curl -H "Content-Type: application/json" \
               -X POST \
               -d '{
-                "content": "狛荷屋をお選びいただき、ありがとうございます!\n発送が終わったよ!!\nURLはここ!=> ${page_url}"
+                "content": "狛荷屋でーす!\nお荷物の到着が終わったよ!!\nURLはここ!=> ${{ steps.deployment.outputs.page_url }}"
               }' "${WEBHOOK_URL}"
   
