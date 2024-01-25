@@ -2,11 +2,11 @@ name: Deploy Github Pages
 
 on:
     workflow_dispatch:
-    pull_request:
-         branches:
-            - to_merge
-         types:
-            - closed
+#    pull_request:
+#         branches:
+#            - to_merge
+#         types:
+#            - closed
 
 concurrency:
     group: "pages"
