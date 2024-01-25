@@ -27,8 +27,7 @@ jobs:
           GH_TOKEN: ${{ steps.create_token.outputs.token }}
           PR_NUMBER: ${{ github.event.number }}
         run: |
-          gh auth status
-          gh pr edit --repo ${GITHUB_REPOSITORY} $PR_NUMBER --add-reviewer "@me"
+          gh pr edit --repo ${GITHUB_REPOSITORY} $PR_NUMBER --add-reviewer "${{ github.actor }}"
 
   reviewdog:
       name: Setup ReviewDog
