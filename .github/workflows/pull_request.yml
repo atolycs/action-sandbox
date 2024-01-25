@@ -84,9 +84,6 @@ jobs:
         runs-on: ubuntu-latest
         needs: [ reviewdog ]
         if: github.event.pull_request.merged == false
-        environment:
-
-
         steps:
           - name: Generate Token
             id: create_token
