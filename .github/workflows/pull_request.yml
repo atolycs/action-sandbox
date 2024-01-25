@@ -14,7 +14,7 @@ jobs:
   apps-assign:
     name: Bot Assign
     runs-on: ubuntu-latest
-    if: github.event.action == 'create'
+    if: github.event.pull_request.state.opened == true
     steps:
       - name: Generate Token
         id: create_token
@@ -27,7 +27,7 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.create_token.outputs.token }}
         run: |
-          gh pr edit --repo ${GITHUB_REPOSITORY} --add-reviewer
+          gh pr edit --repo ${GITHUB_REPOSITORY} --add-reviewer "@me"
 
   reviewdog:
       name: Setup ReviewDog
