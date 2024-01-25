@@ -192,16 +192,18 @@ jobs:
           app-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.APP_PEM }}
 
+      - name: Completed Message on Pull Request
+        env:
+          PR_NUMBER: ${{ github.event.number }}
+          GH_TOKEN: ${{ steps.create_token.outputs.token }}
+        run: |
+          gh pr review --repo ${GITHUB_REPOSITORY} $PR_NUMBER --comment --body 'Approved! meow'  
+          gh pr review --repo ${GITHUB_REPOSITORY} $PR_NUMBER --approve 
+
       - name: Completed Message
         env:
-          GH_TOKEN: ${{ steps.create_token.outputs.token }}
-          PR_NUMBER: ${{ github.event.number }}
           WEBHOOK_URL: ${{ secrets.DISCORD_GITHUB_GIRLS }}
         run: | 
-          if [[ ! -z "${PR_NUMBER}" ]];then
-            gh pr review --repo ${GITHUB_REPOSITORY} $PR_NUMBER --approve 
-            gh pr review --repo ${GITHUB_REPOSITORY} $PR_NUMBER --comment --body 'Approved! meow'
-          fi
           curl -H "Content-Type: application/json" \
           -X POST \
           -d '{
