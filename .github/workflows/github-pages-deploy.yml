@@ -8,6 +8,8 @@ on:
             - to_merge
          types:
             - closed
+         paths:
+            - 'src/**'
 
 concurrency:
     group: "pages"
@@ -68,6 +70,6 @@ jobs:
              curl -H "Content-Type: application/json" \
               -X POST \
               -d '{
-                "content": "狛荷屋でーす!\nお荷物の到着が終わったよ!!\nURLはここ!=> ${{ steps.deployment.outputs.page_url }}"
+                "content": "狛荷屋でーす!\n!!\nURLはここ!=> ${{ steps.deployment.outputs.page_url }}"
               }' "${WEBHOOK_URL}"
   
