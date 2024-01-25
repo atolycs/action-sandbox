@@ -10,7 +10,6 @@ jobs:
     reviewdog:
         name: Setup ReviewDog
         runs-on: ubuntu-latest
-        if: ${{ github.event.pull_request.merged == false }}
         steps:
          - name: Checkout Repository
            uses: actions/checkout@v4
@@ -48,7 +47,6 @@ jobs:
           name: HTML Linter
           runs-on: ubuntu-latest
           needs: [ reviewdog ]
-          if: github.event.pull_request.merged == false
           steps:
             - name: Generate Token
               id: create_token
@@ -80,7 +78,6 @@ jobs:
         name: CSS Linter
         runs-on: ubuntu-latest
         needs: [ reviewdog ]
-        if: github.event.pull_request.merged == false
         steps:
           - name: Generate Token
             id: create_token
@@ -112,7 +109,6 @@ jobs:
       name: Review Result
       runs-on: ubuntu-latest
       needs: [linterhtml, lintercss]
-      if: github.event.pull_request.merged == false
       steps:
         - name: Generate Token
           id: create_token
