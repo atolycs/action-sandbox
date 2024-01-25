@@ -12,6 +12,10 @@ concurrency:
     group: "pages"
     cancel-in-progress: true
 
+permissions:
+  pages: write
+  id-token: write
+
 jobs:
     deploy_page_artifacts:    
         runs-on: ubuntu-latest
