@@ -6,6 +6,10 @@ on:
             branches:
                 - to_merge
 
+concurrency:
+  group: "review"
+  cancel-in-progress: true
+
 jobs:
     reviewdog:
         name: Setup ReviewDog
