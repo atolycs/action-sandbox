@@ -139,7 +139,7 @@ jobs:
 
 
     deploy-production:
-      name: Deploying Githu Pages
+      name: Deploying Github Pages
       runs-on: ubuntu-latest
       if: github.event.pull_request.merged == true
       environment:
