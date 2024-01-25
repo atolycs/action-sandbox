@@ -13,11 +13,7 @@ concurrency:
     cancel-in-progress: true
 
 jobs:
-    deploy_page_artifacts:
-        permissions:
-            pages: write
-            id-token: write
-        
+    deploy_page_artifacts:    
         runs-on: ubuntu-latest
         if: github.event.pull_request.merged == true
         environment:
@@ -34,18 +30,20 @@ jobs:
                 "content": "狛荷屋をお選びいただき、ありがとうございます!\n発送したので、少し待っててね!"
               }' "${WEBHOOK_URL}"
 
-          - name: checkout
-            uses: actions/checkout@v3
-
-          - name: Setup Pages
-            uses: actions/configure-pages@v1
-
           - name: Generate Token
             id: create-token
             uses: actions/create-github-app-token@v1
             with:
               app-id: ${{ secrets.APP_ID }}
               private-key: ${{ secrets.APP_PEM }}
+
+          - name: checkout
+            uses: actions/checkout@v3
+
+          - name: Setup Pages
+            uses: actions/configure-pages@v4
+            with:
+               token: ${{ steps.create-token.outputs.token }}
 
           - name: Upload Artifacts
             uses: actions/upload-pages-artifact@v3
