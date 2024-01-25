@@ -30,7 +30,7 @@ jobs:
           PR_NUMBER: ${{ github.event.number }}
         run: |
           review_number=$(gh api repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/reviews --jq '.[] | [.id,.state] | join("=")' | grep -Po '\d+(?=\=APPROVED)' | tail -n1)
-          echo ${review_number}
+          gh api repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/reviews/${review_number}/dismissals -f message="meow, Re-push detected.\nDismissal and Re-Reviewing..."
 
 
   reviewdog:
