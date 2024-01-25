@@ -11,88 +11,110 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-    reviewdog:
-        name: Setup ReviewDog
-        runs-on: ubuntu-latest
-        if: github.event.pull_request.merged == false
-        steps:
-         - name: Checkout Repository
-           uses: actions/checkout@v4
+  # apps-assign:
+  #   name: Bot Assign
+  #   runs-on: ubuntu-latest
+  #   if: github.event.action == 'synchronize'
+  #   steps:
+  #     - name: Generate Token
+  #       id: create_token
+  #       uses: actions/create-github-app-token@v1
+  #       with:
+  #         app-id: ${{ secrets.APP_ID }}
+  #         private-key: ${{ secrets.APP_PEM }}
 
-         - name: Setup ReviewDog
-           uses: reviewdog/action-setup@v1
-           with:
-                reviewdog_version: latest
-         - name: Setup node
-           uses: actions/setup-node@v4
-        
-         - name: cache activate
-           uses: actions/cache@v4
-           id: node_modules_cache_id
-           env:
+  #     - name: Dismiss Bot Approve
+  #       uses: atolycs/action-util-closet/dismiss-approve@main
+  #       with:
+  #         token: ${{ steps.create_token.outputs.token }}
+  #         pr: ${{ github.event.pull_request.number }}
+  #         message: "meow, Re-push detected.\n dismiss Review, and Running Re-Review..."
+
+
+
+      #       uses: actions/github-script@v7
+  #       with:
+  #         github-token: ${{ steps.create_token.outputs.token }}
+  #         script: |
+  #           const reviews = github.rest.pulls.listReviews({
+  #             ...github.context.repo,
+  #             pull_number: ${{ github.event.pull_request.number }}
+  #           })
+
+  #           for ( const review of reviews.data ){
+  #             if (review.state != 'APPROVED')
+  #               continue
+              
+  #             core.info(`==> Dismissing approvals in PR #${{ github.event.pull_request.number }}`)
+              
+  #             github.rest.pulls.dismissReview({
+  #               ...github.context.repo,
+  #               pull_number: ${{ github.event.pull_request.number }},
+  #               review_id: review.id,
+  #               message: "meow, Re-push detected.\n dismiss Review, and Running Re-Review..."
+  #             })
+  #           }
+  #           return 0           
+      
+#      - name: Assign Bot
+#        env:
+#          GH_TOKEN: ${{ steps.create_token.outputs.token }}
+#          PR_REVIEW_NUMBER: ${{ github.event.pull_request.review_comment_url }}
+#          PR_NUMBER: ${{ github.event.number }}
+#        run: |
+#          review_number=$(gh api repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/reviews --jq '.[] | [.id,.state] | join("=")' | grep -Po '\d+(?=\=APPROVED)' | tail -n1)
+#          gh api repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/reviews/${review_number}/dismissals -f message="meow, Re-push detected.\nDismissal and Re-Reviewing..."
+
+
+  reviewdog:
+      name: Setup ReviewDog
+      runs-on: ubuntu-latest
+      if: github.event.pull_request.merged == false
+      steps:
+        - name: Checkout Repository
+          uses: actions/checkout@v4
+
+        - name: Setup ReviewDog
+          uses: reviewdog/action-setup@v1
+          with:
+              reviewdog_version: latest
+        - name: Setup node
+          uses: actions/setup-node@v4
+      
+        - name: cache activate
+          uses: actions/cache@v4
+          id: node_modules_cache_id
+          env:
             cache-name: 'node_modules'
-           with:
+          with:
             path: '**/node_modules'
             key: ${{ runner.os }}-lint-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
             restore-keys: |
                 ${{ runner.os }}-lint
-        
-         - name: Checking node_modules cache
-           run: echo '${{ toJSON(steps.node_modules_cache_id.outputs) }}'
-        
-         - if: ${{ steps.node_modules_cache_id.outputs.cache-hit != 'true' }}
-           name: Install eslint and dependencies
-           run: |
-              npm ci
-        
-         - name: Installed eslint check
-           run: npm ls --depth=1
+      
+        - name: Checking node_modules cache
+          run: echo '${{ toJSON(steps.node_modules_cache_id.outputs) }}'
+      
+        - if: ${{ steps.node_modules_cache_id.outputs.cache-hit != 'true' }}
+          name: Install eslint and dependencies
+          run: |
+            npm ci
+      
+        - name: Installed eslint check
+          run: npm ls --depth=1
 
-         - name: Review Start Message
-           env:
-             WEBHOOK_URL: ${{ secrets.DISCORD_GITHUB_GIRLS }}
-           run: | 
+        - name: Review Start Message
+          env:
+            WEBHOOK_URL: ${{ secrets.DISCORD_GITHUB_GIRLS }}
+          run: | 
             curl -H "Content-Type: application/json" \
-             -X POST \
-             -d '{
-               "content": "レビュー準備完了。\nコードレビュー中…\n${{ github.event.pull_request.html_url }}"
-             }' "${WEBHOOK_URL}"
+              -X POST \
+              -d '{
+                "content": "レビュー準備完了。\nコードレビュー中…\n${{ github.event.pull_request.html_url }}"
+              }' "${WEBHOOK_URL}"
 
-    linterhtml:
-          name: HTML Linter
-          runs-on: ubuntu-latest
-          needs: [ reviewdog ]
-          steps:
-            - name: Generate Token
-              id: create_token
-              uses: actions/create-github-app-token@v1
-              with:
-                app-id: ${{ secrets.APP_ID }}
-                private-key: ${{ secrets.APP_PEM }}
- 
-            - name: Checkout Repository
-              uses: actions/checkout@v4
-
-            - name: cache restore
-              uses: actions/cache@v4
-              env:
-                cache-name: 'node_modules'
-              with:
-                path: '**/node_modules'
-                key: ${{ runner.os }}-lint-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-                restore-keys: |
-                    ${{ runner.os }}-lint
-
-            - name: Run html eslint with reviewdog
-              uses: reviewdog/action-eslint@v1
-              with:
-                github_token: ${{ steps.create_token.outputs.token }}
-                reporter: github-pr-review
-                fail_on_error: true
-                eslint_flags: "./src/**/*.html"
-
-    lintercss:
-        name: CSS Linter
+  linterhtml:
+        name: HTML Linter
         runs-on: ubuntu-latest
         needs: [ reviewdog ]
         steps:
@@ -111,24 +133,23 @@ jobs:
             env:
               cache-name: 'node_modules'
             with:
-                path: '**/node_modules'
-                key: ${{ runner.os }}-lint-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-                restore-keys: |
-                    ${{ runner.os }}-lint
+              path: '**/node_modules'
+              key: ${{ runner.os }}-lint-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+              restore-keys: |
+                  ${{ runner.os }}-lint
 
-          - name: Run stylelint with reviewdog
-            uses: reviewdog/action-stylelint@v1
+          - name: Run html eslint with reviewdog
+            uses: reviewdog/action-eslint@v1
             with:
               github_token: ${{ steps.create_token.outputs.token }}
               reporter: github-pr-review
               fail_on_error: true
-              stylelint_input: "./src/**/*.css"
-    
-    review_result:
-      name: Review Result
+              eslint_flags: "./src/**/*.html"
+
+  lintercss:
+      name: CSS Linter
       runs-on: ubuntu-latest
-      needs: [linterhtml, lintercss]
-      if: github.event.pull_request.merged == false
+      needs: [ reviewdog ]
       steps:
         - name: Generate Token
           id: create_token
@@ -137,18 +158,56 @@ jobs:
             app-id: ${{ secrets.APP_ID }}
             private-key: ${{ secrets.APP_PEM }}
 
-        - name: Completed Message
+        - name: Checkout Repository
+          uses: actions/checkout@v4
+
+        - name: cache restore
+          uses: actions/cache@v4
           env:
-            GH_TOKEN: ${{ steps.create_token.outputs.token }}
-            PR_NUMBER: ${{ github.event.number }}
-            WEBHOOK_URL: ${{ secrets.DISCORD_GITHUB_GIRLS }}
-          run: | 
-           if [[ ! -z "${PR_NUMBER}" ]];then
-            gh pr review --repo ${GITHUB_REPOSITORY} $PR_NUMBER --approve 
-            gh pr review --repo ${GITHUB_REPOSITORY} $PR_NUMBER --comment --body 'Approved! meow'
-           fi
-           curl -H "Content-Type: application/json" \
-            -X POST \
-            -d '{
-              "content": "マージリクエスト承認!\n ${{ github.event.pull_request.html_url }}"
-            }' "${WEBHOOK_URL}"
+            cache-name: 'node_modules'
+          with:
+              path: '**/node_modules'
+              key: ${{ runner.os }}-lint-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+              restore-keys: |
+                  ${{ runner.os }}-lint
+
+        - name: Run stylelint with reviewdog
+          uses: reviewdog/action-stylelint@v1
+          with:
+            github_token: ${{ steps.create_token.outputs.token }}
+            reporter: github-pr-review
+            fail_on_error: true
+            stylelint_input: "./src/**/*.css"
+    
+  review_result:
+    name: Review Result
+    runs-on: ubuntu-latest
+    needs: [linterhtml, lintercss]
+    if: github.event.pull_request.merged == false
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Generate Token
+        id: create_token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PEM }}
+
+      - name: Completed Message on Pull Request
+        env:
+          PR_NUMBER: ${{ github.event.number }}
+          GH_TOKEN: ${{ steps.create_token.outputs.token }}
+        run: |
+          gh pr review --repo ${GITHUB_REPOSITORY} $PR_NUMBER --comment --body 'Approved! meow'  
+          gh pr review --repo ${GITHUB_REPOSITORY} $PR_NUMBER --approve 
+
+      - name: Completed Message
+        env:
+          WEBHOOK_URL: ${{ secrets.DISCORD_GITHUB_GIRLS }}
+        run: | 
+          curl -H "Content-Type: application/json" \
+          -X POST \
+          -d '{
+            "content": "マージリクエスト承認!\n ${{ github.event.pull_request.html_url }}"
+          }' "${WEBHOOK_URL}"
