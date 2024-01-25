@@ -10,10 +10,6 @@ jobs:
     reviewdog:
         name: Setup ReviewDog
         runs-on: ubuntu-latest
-        environment:
-          name: github-pages
-          url: ${{ steps.deployment.outputs.page_url }}
-
         steps:
          - name: Checkout Repository
            uses: actions/checkout@v4
@@ -51,6 +47,9 @@ jobs:
           name: HTML Linter
           runs-on: ubuntu-latest
           needs: [ reviewdog ]
+          environment:
+            name: github-pages
+ 
           steps:
             - name: Generate Token
               id: create_token
@@ -82,6 +81,9 @@ jobs:
         name: CSS Linter
         runs-on: ubuntu-latest
         needs: [ reviewdog ]
+        environment:
+          name: github-pages
+
         steps:
           - name: Generate Token
             id: create_token
