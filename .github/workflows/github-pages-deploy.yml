@@ -20,7 +20,8 @@ permissions:
   id-token: write
 
 jobs:
-    deploy_page_artifacts:    
+    deploy_page_artifacts:
+        name: Deploy Page Artifacts
         runs-on: ubuntu-latest
         if: ${{ github.event.pull_request.merged == true }}
         environment:
@@ -70,6 +71,6 @@ jobs:
              curl -H "Content-Type: application/json" \
               -X POST \
               -d '{
-                "content": "狛荷屋でーす!\n!!\nURLはここ!=> ${{ steps.deployment.outputs.page_url }}"
+                "content": "狛荷屋でーす!\nアフターサービスの展開作業まで終わったよ!!\nURLはここ!=> ${{ steps.deployment.outputs.page_url }}"
               }' "${WEBHOOK_URL}"
   
