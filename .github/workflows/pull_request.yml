@@ -11,20 +11,28 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # apps-assign:
-  #   name: Bot Assign
-  #   runs-on: ubuntu-latest
-  #   if: github.event.action == 'synchronize'
-  #   steps:
-  #     - name: Generate Token
-  #       id: create_token
-  #       uses: actions/create-github-app-token@v1
-  #       with:
-  #         app-id: ${{ secrets.APP_ID }}
-  #         private-key: ${{ secrets.APP_PEM }}
+  apps-assign:
+    name: Bot Assign
+    runs-on: ubuntu-latest
+    if: github.event.action == 'synchronize'
+    steps:
+      - name: Generate Token
+        id: create_token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PEM }}
 
-  #     - name: Enable Github script
-  #       uses: actions/github-script@v7
+      - name: Dismiss Bot Approve
+        uses: atolycs/action-util-closet/dismiss-approve@main
+        with:
+          token: ${{ steps.create_token.outputs.token }}
+          pr: ${{ github.event.pull_request.number }}
+          message: "meow, Re-push detected.\n dismiss Review, and Running Re-Review..."
+
+
+
+      #       uses: actions/github-script@v7
   #       with:
   #         github-token: ${{ steps.create_token.outputs.token }}
   #         script: |
