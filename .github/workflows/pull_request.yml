@@ -11,61 +11,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # apps-assign:
-  #   name: Bot Assign
-  #   runs-on: ubuntu-latest
-  #   if: github.event.action == 'synchronize'
-  #   steps:
-  #     - name: Generate Token
-  #       id: create_token
-  #       uses: actions/create-github-app-token@v1
-  #       with:
-  #         app-id: ${{ secrets.APP_ID }}
-  #         private-key: ${{ secrets.APP_PEM }}
-
-  #     - name: Dismiss Bot Approve
-  #       uses: atolycs/action-util-closet/dismiss-approve@main
-  #       with:
-  #         token: ${{ steps.create_token.outputs.token }}
-  #         pr: ${{ github.event.pull_request.number }}
-  #         message: "meow, Re-push detected.\n dismiss Review, and Running Re-Review..."
-
-
-
-      #       uses: actions/github-script@v7
-  #       with:
-  #         github-token: ${{ steps.create_token.outputs.token }}
-  #         script: |
-  #           const reviews = github.rest.pulls.listReviews({
-  #             ...github.context.repo,
-  #             pull_number: ${{ github.event.pull_request.number }}
-  #           })
-
-  #           for ( const review of reviews.data ){
-  #             if (review.state != 'APPROVED')
-  #               continue
-              
-  #             core.info(`==> Dismissing approvals in PR #${{ github.event.pull_request.number }}`)
-              
-  #             github.rest.pulls.dismissReview({
-  #               ...github.context.repo,
-  #               pull_number: ${{ github.event.pull_request.number }},
-  #               review_id: review.id,
-  #               message: "meow, Re-push detected.\n dismiss Review, and Running Re-Review..."
-  #             })
-  #           }
-  #           return 0           
-      
-#      - name: Assign Bot
-#        env:
-#          GH_TOKEN: ${{ steps.create_token.outputs.token }}
-#          PR_REVIEW_NUMBER: ${{ github.event.pull_request.review_comment_url }}
-#          PR_NUMBER: ${{ github.event.number }}
-#        run: |
-#          review_number=$(gh api repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/reviews --jq '.[] | [.id,.state] | join("=")' | grep -Po '\d+(?=\=APPROVED)' | tail -n1)
-#          gh api repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/reviews/${review_number}/dismissals -f message="meow, Re-push detected.\nDismissal and Re-Reviewing..."
-
-
   reviewdog:
       name: Setup ReviewDog
       runs-on: ubuntu-latest

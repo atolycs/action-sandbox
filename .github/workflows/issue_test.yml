@@ -1,0 +1,23 @@
+name: Issue Add Test
+on:
+    workflow_dispatch:
+
+
+jobs:
+  issue_create:
+        runs-on: ubuntu-latest
+        steps:        
+          - name: Generate Token
+            id: apps-token
+            uses: actions/create-github-app-token@v1
+            with:
+              app-id: ${{ secrets.APP_ID }}
+              private-key: ${{ secrets.APP_PEM }}
+
+          - name: Create Issue from bot
+            uses: atolycs/action-util-closet/create-issue-comment@main
+            with:
+              token: ${{ steps.apps-token.outputs.token }}
+              title: "[Check Request]: Tag Failed"
+              body: "This is Issue create test.\n**Tag Not Found!!**\nCheck Added Tags."
+
